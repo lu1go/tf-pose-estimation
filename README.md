@@ -19,13 +19,6 @@ You need dependencies below.
 - tensorflow 1.4.1+
 - opencv3, protobuf, python3-tk
 
-### Install
-
-```bash
-$ git clone https://www.github.com/ildoonet/tf-openpose
-$ cd tf-openpose
-$ pip3 install -r requirements.txt
-```
 
 ## Models
 
@@ -84,7 +77,7 @@ $ bash download.sh
 You can test the inference feature with a single image.
 
 ```
-$ python3 run.py --model=mobilenet_thin_432x368 --image=...
+$ python src/run.py --model=mobilenet_thin_432x368 --image=./images/p1.jpg
 ```
 
 The image flag MUST be relative to the src folder with no "~", i.e:
@@ -99,7 +92,7 @@ Then you will see the screen as below with pafmap, heatmap, result and etc.
 ### Realtime Webcam
 
 ```
-$ python3 run_webcam.py --model=mobilenet_thin_432x368 --camera=0
+$ python src/run_webcam.py --model=mobilenet_thin_432x368 --camera=0
 ```
 
 Then you will see the realtime webcam screen with estimated poses as below. This [Realtime Result](./etcs/openpose_macbook13_mobilenet2.gif) was recored on macbook pro 13" with 3.1Ghz Dual-Core CPU.
@@ -115,10 +108,6 @@ e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
 humans = e.inference(image)
 image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
 ```
-
-## ROS Support
-
-See : [etcs/ros.md](./etcs/ros.md)
 
 ## Training
 
