@@ -65,6 +65,8 @@ if __name__ == '__main__':
     visibilities = np.array(visibilities)
     transformed_pose2d, weights = poseLifting.transform_joints(pose_2d_mpiis, visibilities)
     pose_3d = poseLifting.compute_3d(transformed_pose2d, weights)
+    # /zym pose_3d为(1,3,17)的矩阵代表17个关键点的三维坐标
+    print('zym{}'.format(pose_3d))
 
     import matplotlib.pyplot as plt
 

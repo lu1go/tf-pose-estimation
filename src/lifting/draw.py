@@ -75,12 +75,15 @@ def plot_pose(pose):
     assert (pose.ndim == 2)
     assert (pose.shape[0] == 3)
     fig = plt.figure()
+    # /zym 加入3d坐标系
     ax = fig.gca(projection='3d')
+    # /zym 画线
     for c in _CONNECTION:
         col = '#%02x%02x%02x' % joint_color(c[0])
         ax.plot([pose[0, c[0]], pose[0, c[1]]],
                 [pose[1, c[0]], pose[1, c[1]]],
                 [pose[2, c[0]], pose[2, c[1]]], c=col)
+        # /zym 画点
     for j in range(pose.shape[1]):
         col = '#%02x%02x%02x' % joint_color(j)
         ax.scatter(pose[0, j], pose[1, j], pose[2, j],

@@ -23,6 +23,7 @@ class Human:
     """
     body_parts: list of BodyPart
     """
+    # /zym 用__slots__限制该class能添加的属性,用tuple定义允许绑定的属性名称
     __slots__ = ('body_parts', 'pairs', 'uidx_list')
 
     def __init__(self, pairs):
