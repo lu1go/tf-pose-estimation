@@ -1,0 +1,1 @@
+python src/run.py --model=mobilenet_thin_432x368 --image=./images/p1.jpg

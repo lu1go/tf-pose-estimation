@@ -1,7 +1,9 @@
 import argparse
 import logging
 import time
+import pdb
 
+import segmentation
 import common
 import cv2
 import numpy as np
@@ -26,26 +28,44 @@ if __name__ == '__main__':
     parser.add_argument('--image', type=str, default='./images/apink2.jpg')
     # parser.add_argument('--model', type=str, default='mobilenet_320x240', help='cmu / mobilenet_320x240')
     parser.add_argument('--model', type=str, default='mobilenet_thin_432x368', help='cmu_640x480 / cmu_640x360 / mobilenet_thin_432x368')
+    parser.add_argument('--split', type=str, default='4x6', help='split the original image into m by n blocks')
     args = parser.parse_args()
 
+    m, n = segmentation.split_mn(args.split)
     w, h = model_wh(args.model)
+    # w, h = model_wh('mobilenet_thin_432x368')
+    # e = TfPoseEstimator(get_graph_path('mobilenet_thin_432x368'), target_size=(w, h))
     e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
 
     # estimate human poses from a single image !
     image = common.read_imgfile(args.image, w, h)
+    # image = common.read_imgfile('./images/test1.jpg', w, h)
     t = time.time()
+
+    img_block = segmentation.create_image_block(image, m, n)
+    # for i in range(m):
+        # for j in range(n):
+            # humans[i][j] = e.inference(img_block[i][j])
+
     humans = e.inference(image)
+    pdb.set_trace()
     elapsed = time.time() - t
 
     logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
 
     image = cv2.imread(args.image, cv2.IMREAD_COLOR)
+
     image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
     cv2.imshow('tf-pose-estimation result', image)
     cv2.waitKey()
+    # cv2.imwrite('t1pt2.jpg', image)
 
-    import sys
-    sys.exit(0)
+    img_name = args.image.split('/')[-1]
+    img_name = 'result_' + img_name
+    cv2.imwrite(img_name, image)
+
+    # import sys
+    # sys.exit(0)
 
     logger.info('3d lifting initialization.')
     poseLifting = Prob3dPose('./src/lifting/models/prob_model_params.mat')
