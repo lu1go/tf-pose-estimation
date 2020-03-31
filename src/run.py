@@ -33,39 +33,58 @@ if __name__ == '__main__':
 
     m, n = segmentation.split_mn(args.split)
     w, h = model_wh(args.model)
-    # w, h = model_wh('mobilenet_thin_432x368')
-    # e = TfPoseEstimator(get_graph_path('mobilenet_thin_432x368'), target_size=(w, h))
     e = TfPoseEstimator(get_graph_path(args.model), target_size=(w, h))
 
     # estimate human poses from a single image !
+    # image is of regularized size
     image = common.read_imgfile(args.image, w, h)
-    # image = common.read_imgfile('./images/test1.jpg', w, h)
     t = time.time()
 
-    img_block = segmentation.create_image_block(image, m, n)
-    # for i in range(m):
-        # for j in range(n):
-            # humans[i][j] = e.inference(img_block[i][j])
+    image_block = segmentation.create_image_block(image, m, n)
 
-    humans = e.inference(image)
-    pdb.set_trace()
+    humans_block = []
+    for i in range(m):
+        humans_block.append([])
+        for j in range(n):
+            humans_block[i].append(e.inference(image_block[i][j]))
+
+    # humans = e.inference(image)
+    # pdb.set_trace()
     elapsed = time.time() - t
 
     logger.info('inference image: %s in %.4f seconds.' % (args.image, elapsed))
 
-    image = cv2.imread(args.image, cv2.IMREAD_COLOR)
+    # img is of original size
+    img = cv2.imread(args.image, cv2.IMREAD_COLOR)
+    img_block = segmentation.create_image_block(img, m, n)
 
-    image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
-    cv2.imshow('tf-pose-estimation result', image)
+    # #####################################################
+    # for i in range(m):
+    #     for j in range(n):
+    #         print(np.shape(img_block[i][j]))
+
+    # pdb.set_trace()
+    for i in range(m):
+        for j in range(n):
+            # draw humans uses original image but the humans are inferred using normalized image
+            img_block[i][j] = TfPoseEstimator.draw_humans(img_block[i][j], humans_block[i][j], imgcopy=False)
+
+    # image = cv2.imread(args.image, cv2.IMREAD_COLOR)
+    # image = TfPoseEstimator.draw_humans(image, humans, imgcopy=False)
+    # pdb.set_trace()
+    # concatenate the img blocks
+    restored_img = segmentation.image_concat(img_block)
+    cv2.imshow('reconnected pose estimation result', restored_img)
+    # cv2.imshow('tf-pose-estimation result', image)
     cv2.waitKey()
     # cv2.imwrite('t1pt2.jpg', image)
 
     img_name = args.image.split('/')[-1]
     img_name = 'result_' + img_name
-    cv2.imwrite(img_name, image)
+    cv2.imwrite(img_name, restored_img)
 
-    # import sys
-    # sys.exit(0)
+    import sys
+    sys.exit(0)
 
     logger.info('3d lifting initialization.')
     poseLifting = Prob3dPose('./src/lifting/models/prob_model_params.mat')
